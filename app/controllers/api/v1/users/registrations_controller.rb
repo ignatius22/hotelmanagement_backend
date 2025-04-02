@@ -3,67 +3,57 @@ module Api
     module Users
       class RegistrationsController < Devise::RegistrationsController
         respond_to :json
-        
-        rescue_from ActiveRecord::RecordInvalid, with: :render_validation_errors
-        rescue_from StandardError, with: :render_server_error
 
-        # Override create to handle custom parameter structure
+        rescue_from ActiveRecord::RecordInvalid, with: :handle_validation_errors
+        rescue_from StandardError, with: :handle_server_error
+
+        # POST /api/v1/signup
         def create
           build_resource(sign_up_params)
-          resource.save
+          resource.save!
           yield resource if block_given?
-          respond_with(resource)
+          render_success_response(resource)
+        rescue ActiveRecord::RecordInvalid => e
+          handle_validation_errors(e)
         end
 
         private
 
-        # Handle both user[] and registration[user][] parameter structures
+        # Permit sign-up parameters
         def sign_up_params
-          params[:user] ||= params.dig(:registration, :user) || {}
           params.require(:user).permit(:email, :password, :password_confirmation, :full_name, :avatar)
         end
 
-        def respond_with(resource, _opts = {})
-          if resource.persisted?
-            render_success_response(resource)
-          else
-            render_error_response(resource)
-          end
-        end
-
+        # Render success response
         def render_success_response(resource)
           render json: {
             code: 201,
-            message: 'Signed up successfully',
+            message: 'Signed up successfully.',
             data: serialized_user(resource)
           }, status: :created
         end
 
-        def render_error_response(resource)
+        # Render validation error response
+        def handle_validation_errors(exception)
           render json: {
             code: 422,
-            message: 'User creation failed',
-            errors: resource.errors.details.transform_values(&:first)
+            message: 'Validation failed.',
+            errors: exception.record.errors.full_messages
           }, status: :unprocessable_entity
         end
 
-        def render_validation_errors(exception)
-          render json: {
-            code: 422,
-            message: 'Validation failed',
-            errors: exception.record.errors.details.transform_values(&:first)
-          }, status: :unprocessable_entity
-        end
-
-        def render_server_error(exception)
-          Rails.logger.error(exception.message)
+        # Render server error response
+        def handle_server_error(exception)
+          Rails.logger.error("#{exception.class}: #{exception.message}")
+          Rails.logger.error(exception.backtrace.join("\n"))
           render json: {
             code: 500,
-            message: 'Internal server error',
-            errors: ['Something went wrong']
+            message: 'Internal server error.',
+            errors: ['Something went wrong. Please try again later.']
           }, status: :internal_server_error
         end
 
+        # Serialize user data
         def serialized_user(user)
           UserSerializer.new(user).serializable_hash[:data][:attributes]
         rescue NameError => e

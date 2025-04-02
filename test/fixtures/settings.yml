@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  min_booking_length: 1
+  max_booking_length: 1
+  max_guests_per_booking: 1
+  breakfast_price: 9.99
+
+two:
+  min_booking_length: 1
+  max_booking_length: 1
+  max_guests_per_booking: 1
+  breakfast_price: 9.99

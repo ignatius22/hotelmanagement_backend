@@ -6,26 +6,28 @@ module Api
         include AuthorizationHelper
 
         respond_to :json
-        rescue_from StandardError, with: :render_server_error
 
+        rescue_from StandardError, with: :handle_server_error
+
+        # POST /api/v1/login
         def create
-          params[:user] ||= params.dig(:session, :user) || {}
-          self.resource = warden.authenticate!(scope: :user, recall: "#{controller_path}#respond_to_on_failure")
-          return respond_to_on_failure unless resource
+          self.resource = warden.authenticate!(scope: :user, recall: "#{controller_path}#handle_authentication_failure")
+          return handle_authentication_failure unless resource
 
           sign_in(resource_name, resource, store: false)
-          respond_with(resource)
+          respond_with_success(resource)
         end
 
         private
 
-        def respond_with(resource, _opts = {})
+        # Handle successful login response
+        def respond_with_success(resource)
           token = request.env['warden-jwt_auth.token']
-          payload = Warden::JWTAuth::TokenDecoder.new.call(token)
+          payload = decode_jwt_payload(token)
 
           render json: {
             code: 200,
-            message: 'Logged in successfully',
+            message: 'Logged in successfully.',
             data: {
               user: serialized_user(resource),
               token: token
@@ -37,22 +39,43 @@ module Api
           }, status: :ok
         end
 
-        def respond_to_on_failure
+        # Handle failed login attempts
+        def handle_authentication_failure
           Rails.logger.info "Authentication failed with params: #{params[:user].inspect}"
-          render json: { code: 401, message: 'Invalid email or password' }, status: :unauthorized
+          render json: {
+            code: 401,
+            message: 'Invalid email or password.'
+          }, status: :unauthorized
         end
 
+        # Serialize user data
         def serialized_user(user)
           UserSerializer.new(user).serializable_hash[:data][:attributes]
         rescue NameError => e
           Rails.logger.error("Serializer not found: #{e.message}")
-          { id: user.id, email: user.email, full_name: user.full_name, created_at: user.created_at, avatar: user.avatar.present? ? user.avatar.url : nil }
+          {
+            id: user.id,
+            email: user.email,
+            full_name: user.full_name,
+            created_at: user.created_at,
+            avatar: user.avatar.present? ? user.avatar.url : nil
+          }
         end
 
-        def render_server_error(exception)
+        # Handle server errors
+        def handle_server_error(exception)
           Rails.logger.error("#{exception.class}: #{exception.message}")
           Rails.logger.error(exception.backtrace.join("\n"))
-          render json: { code: 500, message: 'Internal server error', errors: ['Something went wrong'] }, status: :internal_server_error
+          render json: {
+            code: 500,
+            message: 'Internal server error.',
+            errors: ['Something went wrong. Please try again later.']
+          }, status: :internal_server_error
+        end
+
+        # Decode JWT payload
+        def decode_jwt_payload(token)
+          Warden::JWTAuth::TokenDecoder.new.call(token)
         end
       end
     end

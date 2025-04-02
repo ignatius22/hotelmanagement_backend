@@ -1,0 +1,29 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  start_date: 2025-04-02
+  end_date: 2025-04-02
+  num_nights: 1
+  num_guests: 1
+  cabin_price: 9.99
+  extras_price: 9.99
+  total_price: 9.99
+  has_breakfast: false
+  observations: MyText
+  is_paid: false
+  guest: one
+  cabin: one
+
+two:
+  start_date: 2025-04-02
+  end_date: 2025-04-02
+  num_nights: 1
+  num_guests: 1
+  cabin_price: 9.99
+  extras_price: 9.99
+  total_price: 9.99
+  has_breakfast: false
+  observations: MyText
+  is_paid: false
+  guest: two
+  cabin: two
