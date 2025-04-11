@@ -11,6 +11,9 @@ module Api
           self.resource = warden.authenticate!(scope: :user, recall: "#{controller_path}#handle_authentication_failure")
           return handle_authentication_failure unless resource
 
+          # Set is_authenticated to true
+          resource.update!(is_authenticated: true)
+
           sign_in(:user, resource, store: false)
           # Generate JWT token
           token = Warden::JWTAuth::UserEncoder.new.call(resource, :user, nil).first
