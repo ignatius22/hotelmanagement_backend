@@ -2,32 +2,35 @@ module Api
   module V1
     module Users
       class SessionsController < Devise::SessionsController
-        include JwtHandler
         include AuthorizationHelper
-
         respond_to :json
-
         rescue_from StandardError, with: :handle_server_error
 
-        # POST /api/v1/login
         def create
+          params[:user] ||= params.dig(:session, :user) || {}
           self.resource = warden.authenticate!(scope: :user, recall: "#{controller_path}#handle_authentication_failure")
           return handle_authentication_failure unless resource
 
-          sign_in(resource_name, resource, store: false)
-          respond_with_success(resource)
+          sign_in(:user, resource, store: false)
+          # Generate JWT token
+          token = Warden::JWTAuth::UserEncoder.new.call(resource, :user, nil).first
+          request.env['warden-jwt_auth.token'] = token # Override default token
+          respond_with_success(resource, token)
+        end
+
+        def destroy
+          sign_out(resource_name)
+          render json: { code: 200, message: 'Logged out successfully' }, status: :ok
         end
 
         private
 
-        # Handle successful login response
-        def respond_with_success(resource)
-          token = request.env['warden-jwt_auth.token']
+        def respond_with_success(resource, token)
           payload = decode_jwt_payload(token)
-
+          Rails.logger.info "Issued token payload: #{payload.inspect}"
           render json: {
             code: 200,
-            message: 'Logged in successfully.',
+            message: 'Logged in successfully',
             data: {
               user: serialized_user(resource),
               token: token
@@ -39,16 +42,11 @@ module Api
           }, status: :ok
         end
 
-        # Handle failed login attempts
         def handle_authentication_failure
           Rails.logger.info "Authentication failed with params: #{params[:user].inspect}"
-          render json: {
-            code: 401,
-            message: 'Invalid email or password.'
-          }, status: :unauthorized
+          render json: { code: 401, message: 'Invalid email or password' }, status: :unauthorized
         end
 
-        # Serialize user data
         def serialized_user(user)
           UserSerializer.new(user).serializable_hash[:data][:attributes]
         rescue NameError => e
@@ -62,18 +60,11 @@ module Api
           }
         end
 
-        # Handle server errors
         def handle_server_error(exception)
-          Rails.logger.error("#{exception.class}: #{exception.message}")
-          Rails.logger.error(exception.backtrace.join("\n"))
-          render json: {
-            code: 500,
-            message: 'Internal server error.',
-            errors: ['Something went wrong. Please try again later.']
-          }, status: :internal_server_error
+          Rails.logger.error("#{exception.class}: #{exception.message}\n#{exception.backtrace.join("\n")}")
+          render json: { code: 500, message: 'Internal server error', errors: ['Something went wrong'] }, status: :internal_server_error
         end
 
-        # Decode JWT payload
         def decode_jwt_payload(token)
           Warden::JWTAuth::TokenDecoder.new.call(token)
         end

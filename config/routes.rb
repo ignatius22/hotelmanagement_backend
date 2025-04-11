@@ -1,30 +1,37 @@
 Rails.application.routes.draw do
   namespace :api, defaults: { format: :json } do
     namespace :v1 do
-      # Scope for Devise routes
-      devise_scope :user do
-        devise_for :users,
-          path: '',
-          path_names: {
-            sign_in: 'login',
-            sign_out: 'logout',
-            registration: 'signup'
-          },
-          controllers: {
-            sessions: 'api/v1/users/sessions',
-            registrations: 'api/v1/users/registrations'
-          },
-          skip: [:passwords, :confirmations, :unlocks]
+      devise_for :users,
+        path: '',
+        path_names: { sign_in: 'login', sign_out: 'logout', registration: 'signup' },
+        controllers: { sessions: 'api/v1/users/sessions', registrations: 'api/v1/users/registrations' },
+        skip: [:passwords, :confirmations, :unlocks]
 
-        # Optional: Add custom routes if needed
-        post 'refresh', to: 'api/v1/users/sessions#refresh'  # Token refresh
+      post 'refresh', to: 'api/v1/users/sessions#refresh'
+
+      # Global bookings endpoint
+      resources :bookings, only: [:index, :show] # GET /api/v1/bookings
+
+      resources :cabins, only: [:index, :show, :create, :update, :destroy] do
+        # Cabin-specific bookings
+        resources :bookings, only: [:show, :create, :update, :destroy] do
+          collection do
+            get 'after/:date', to: 'bookings#after'
+            get 'stays/after/:date', to: 'bookings#stays_after'
+            get 'today', to: 'bookings#today'
+          end
+        end
       end
 
-      # API documentation endpoint (if using rswag or similar)
+      resources :settings, only: [:index, :show, :update]
       get 'docs', to: 'api_docs#index'
+      get 'health', to: 'api/v1/health#check'
+
+      resources :users, only: [] do
+        collection do
+          get :current
+        end
+      end
     end
   end
-
-  # Health check with more detail
-  get '/api/v1/health', to: 'api/v1/health#check'
 end

@@ -52,3 +52,4 @@ gem "rack-cors", "~> 2.0"
 
 gem 'devise-jwt'
 gem 'jsonapi-serializer'
+gem "kaminari", "~> 1.2"

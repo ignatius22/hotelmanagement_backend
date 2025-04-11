@@ -1,5 +1,5 @@
 class Cabin < ApplicationRecord
-  has_many :bookings
+  has_many :bookings, dependent: :destroy
 
   validates :max_capacity, presence: true, numericality: { only_integer: true, greater_than: 0 }
   validates :regular_price, presence: true, numericality: { greater_than_or_equal_to: 0 }
