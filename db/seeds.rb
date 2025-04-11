@@ -7,16 +7,16 @@ User.destroy_all
 # Create Users
 puts "Seeding Users..."
 users = [
-  { full_name: 'Jonas Schmedtmann', email: 'hello@jonas.io', nationality: 'Portugal', national_id: '3525436345', country_flag: 'https://flagcdn.com/pt.svg', password: "password", is_authenticated: true, role: "admin" },
-  { full_name: 'Jonathan Smith', email: 'johnsmith@test.eu', nationality: 'Great Britain', national_id: '4534593454', country_flag: 'https://flagcdn.com/gb.svg', password: "password", is_authenticated: true, role: "guest" },
-  { full_name: 'Jonatan Johansson', email: 'jonatan@example.com', nationality: 'Finland', national_id: '9374074454', country_flag: 'https://flagcdn.com/fi.svg', password: "password", is_authenticated: true, role: "guest" },
-  { full_name: 'Jonas Mueller', email: 'jonas@example.eu', nationality: 'Germany', national_id: '1233212288', country_flag: 'https://flagcdn.com/de.svg', password: "password", is_authenticated: true, role: "guest" },
-  { full_name: 'Jonas Anderson', email: 'anderson@example.com', nationality: 'Bolivia (Plurinational State of)', national_id: '0988520146', country_flag: 'https://flagcdn.com/bo.svg', password: "password", is_authenticated: true, role: "guest" },
-  { full_name: 'Jonathan Williams', email: 'jowi@gmail.com', nationality: 'United States of America', national_id: '633678543', country_flag: 'https://flagcdn.com/us.svg', password: "password", is_authenticated: true, role: "guest" },
-  { full_name: 'Emma Watson', email: 'emma.watson@gmail.com', nationality: 'United Kingdom', national_id: '1234578901', country_flag: 'https://flagcdn.com/gb.svg', password: "password", is_authenticated: true, role: "guest" },
-  { full_name: 'Mohammed Ali', email: 'mohammedali@yahoo.com', nationality: 'Egypt', national_id: '987543210', country_flag: 'https://flagcdn.com/eg.svg', password: "password", is_authenticated: true, role: "guest" },
-  { full_name: 'Maria Rodriguez', email: 'maria@gmail.com', nationality: 'Spain', national_id: '1098765321', country_flag: 'https://flagcdn.com/es.svg', password: "password", is_authenticated: true, role: "guest" },
-  { full_name: 'Li Mei', email: 'li.mei@hotmail.com', nationality: 'China', national_id: '102934756', country_flag: 'https://flagcdn.com/cn.svg', password: "password", is_authenticated: true, role: "guest" }
+  { full_name: 'Jonas Schmedtmann', email: 'hello@jonas.io', nationality: 'Portugal', national_id: '3525436345', country_flag: 'https://flagcdn.com/pt.svg', password: "password", is_authenticated: false, role: "admin" },
+  { full_name: 'Jonathan Smith', email: 'johnsmith@test.eu', nationality: 'Great Britain', national_id: '4534593454', country_flag: 'https://flagcdn.com/gb.svg', password: "password", is_authenticated: false, role: "guest" },
+  { full_name: 'Jonatan Johansson', email: 'jonatan@example.com', nationality: 'Finland', national_id: '9374074454', country_flag: 'https://flagcdn.com/fi.svg', password: "password", is_authenticated: false, role: "guest" },
+  { full_name: 'Jonas Mueller', email: 'jonas@example.eu', nationality: 'Germany', national_id: '1233212288', country_flag: 'https://flagcdn.com/de.svg', password: "password", is_authenticated: false, role: "guest" },
+  { full_name: 'Jonas Anderson', email: 'anderson@example.com', nationality: 'Bolivia (Plurinational State of)', national_id: '0988520146', country_flag: 'https://flagcdn.com/bo.svg', password: "password", is_authenticated: false, role: "guest" },
+  { full_name: 'Jonathan Williams', email: 'jowi@gmail.com', nationality: 'United States of America', national_id: '633678543', country_flag: 'https://flagcdn.com/us.svg', password: "password", is_authenticated: false, role: "guest" },
+  { full_name: 'Emma Watson', email: 'emma.watson@gmail.com', nationality: 'United Kingdom', national_id: '1234578901', country_flag: 'https://flagcdn.com/gb.svg', password: "password", is_authenticated: false, role: "guest" },
+  { full_name: 'Mohammed Ali', email: 'mohammedali@yahoo.com', nationality: 'Egypt', national_id: '987543210', country_flag: 'https://flagcdn.com/eg.svg', password: "password", is_authenticated: false, role: "guest" },
+  { full_name: 'Maria Rodriguez', email: 'maria@gmail.com', nationality: 'Spain', national_id: '1098765321', country_flag: 'https://flagcdn.com/es.svg', password: "password", is_authenticated: false, role: "guest" },
+  { full_name: 'Li Mei', email: 'li.mei@hotmail.com', nationality: 'China', national_id: '102934756', country_flag: 'https://flagcdn.com/cn.svg', password: "password", is_authenticated: false, role: "guest" }
 ]
 users.each { |user| User.create!(user) }
 
