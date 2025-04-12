@@ -1,7 +1,8 @@
 class CabinSerializer
   include JSONAPI::Serializer
 
-  attributes :id, :max_capacity, :regular_price, :discount, :final_price, :created_at, :updated_at, :name
+  attributes :id, :max_capacity, :regular_price,
+             :discount, :final_price, :created_at, :updated_at, :name, :image
 
   has_many :bookings
 
