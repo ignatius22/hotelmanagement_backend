@@ -9,18 +9,17 @@ Rails.application.routes.draw do
 
       post 'refresh', to: 'api/v1/users/sessions#refresh'
 
-      # Global bookings endpoint
-      resources :bookings, only: [:index, :show] # GET /api/v1/bookings
+      # Global bookings endpoints
+      resources :bookings, only: [:index, :show, :update, :destroy] do
+        collection do
+          get 'after/:date', to: 'bookings#after' # GET /api/v1/bookings/after/:date
+          get 'stays/after/:date', to: 'bookings#stays_after' # GET /api/v1/bookings/stays/after/:date
+          get 'today', to: 'bookings#today' # GET /api/v1/bookings/today
+        end
+      end
 
       resources :cabins, only: [:index, :show, :create, :update, :destroy] do
-        # Cabin-specific bookings
-        resources :bookings, only: [:show, :create, :update, :destroy] do
-          collection do
-            get 'after/:date', to: 'bookings#after'
-            get 'stays/after/:date', to: 'bookings#stays_after'
-            get 'today', to: 'bookings#today'
-          end
-        end
+        resources :bookings, only: [:create] # POST /api/v1/cabins/:cabin_id/bookings
       end
 
       resources :settings, only: [:index, :show, :update]
